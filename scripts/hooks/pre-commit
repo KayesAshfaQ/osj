@@ -1,0 +1,16 @@
+#!/bin/sh
+# Justify local pre-commit hook to validate staged change records
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+VALIDATOR="${REPO_ROOT}/scripts/validate_change_records.py"
+
+if [ -f "$VALIDATOR" ]; then
+    python3 "$VALIDATOR" --staged --require-completed || {
+        echo "" >&2
+        echo "❌ Pre-commit validation failed: Please ensure all staged files are covered" >&2
+        echo "   in a completed change record under docs/changes/YYYY-MM-DD-<slug>.md" >&2
+        echo "   (or use 'git commit --no-verify' for an emergency/WIP bypass)." >&2
+        exit 1
+    }
+fi

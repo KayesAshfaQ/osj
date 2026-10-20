@@ -1,0 +1,33 @@
+name: Publication checks
+on:
+  push:
+    branches: [osj]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 scripts/check_publication.py
+      - name: Install pinned secret scanner
+        env:
+          GITLEAKS_VERSION: 8.30.1
+        run: |
+          curl -fsSL --max-time 30 -o "$RUNNER_TEMP/gitleaks.tar.gz" "https://github.com/gitleaks/gitleaks/releases/download/v$GITLEAKS_VERSION/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL --max-time 30 -o "$RUNNER_TEMP/checksums.txt" "https://github.com/gitleaks/gitleaks/releases/download/v$GITLEAKS_VERSION/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          cd "$RUNNER_TEMP"
+          mv gitleaks.tar.gz "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          sha256sum --check --ignore-missing checksums.txt
+          tar -xzf "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" gitleaks
+      - name: Scan tree and reachable history
+        run: |
+          "$RUNNER_TEMP/gitleaks" dir . --redact --no-banner
+          "$RUNNER_TEMP/gitleaks" git . --log-opts="--all" --redact --no-banner

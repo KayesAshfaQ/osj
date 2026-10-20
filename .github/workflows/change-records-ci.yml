@@ -1,0 +1,53 @@
+name: Change Records CI
+
+on:
+  push:
+    branches: [osj]
+  pull_request:
+    branches: [osj]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-change-records:
+    name: Validate Change Records
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate change records in PR
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          python3 scripts/validate_change_records.py \
+            --commit-range origin/$BASE_REF...HEAD \
+            --require-completed
+
+      - name: Validate change records on push
+        if: github.event_name == 'push'
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: |
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE_SHA" ] || ! git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null; then
+            python3 scripts/validate_change_records.py --commit-range "$AFTER_SHA" --require-completed
+          else
+            python3 scripts/validate_change_records.py \
+              --commit-range "$BEFORE_SHA..$AFTER_SHA" \
+              --require-completed
+          fi
+
+      - name: Run repository workflow and validator tests
+        run: |
+          pip install pytest
+          pytest scripts/tests -q --tb=short

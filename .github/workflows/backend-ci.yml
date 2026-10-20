@@ -1,0 +1,67 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [osj]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    branches: [osj]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gates:
+    name: Backend Quality Gates
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify locked dependencies
+        run: uv lock --check
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Code formatting check (Ruff)
+        run: uv run ruff format --check app tests scripts evals alembic
+
+      - name: Lint and annotation check (Ruff)
+        run: uv run ruff check app tests scripts evals alembic
+
+      - name: Strict type checking (Pyright)
+        run: uv run pyright
+
+      - name: Offline test suite (Pytest)
+        run: uv run pytest -q --tb=short
+
+      - name: Alembic migration head check
+        run: uv run alembic heads
+
+      - name: Alembic offline static SQL generation
+        run: uv run alembic upgrade head --sql

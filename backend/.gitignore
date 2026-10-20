@@ -1,0 +1,59 @@
+# Python caches and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv/
+venv/
+env/
+ENV/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Type checking and linting
+.mypy_cache/
+.ruff_cache/
+.pyre/
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database / State files
+chroma_db/
+qdrant_db/
+qdrant_db_test*/
+
+# Large dataset files (download instructions: backend/data/README.md)
+data/bangladesh_legal_acts_dataset/
+
+# Local corpora, generated evaluations and credentials
+.env.*
+!.env.example
+qdrant_db*/
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+evals/results/
+data/external/

@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "notice": "Fictional engineering fixture. Not Bangladesh law or legal advice.",
+  "acts": [
+    {
+      "source_id": "osj-synthetic-demo",
+      "act_title": "Synthetic Demonstration Act (fictional)",
+      "act_no": "DEMO",
+      "act_year": "2000",
+      "language": "english",
+      "source_url": "",
+      "sections": [
+        {
+          "section_content": "1. This fictional demonstration defines a sample widget as a blue square. এই কাল্পনিক উদাহরণে নমুনা উইজেট একটি নীল বর্গ।",
+          "chapter_name": "Fictional example"
+        },
+        {
+          "section_content": "2. In this fictional demonstration, sample widgets are stored in the green box. এই কাল্পনিক উদাহরণে নমুনা উইজেট সবুজ বাক্সে রাখা হয়।",
+          "chapter_name": "Fictional example"
+        },
+        {
+          "section_content": "3. In this fictional demonstration, a sample widget may be labeled DEMO. এই কাল্পনিক উদাহরণে নমুনা উইজেটে DEMO লেখা যেতে পারে।",
+          "chapter_name": "Fictional example"
+        }
+      ]
+    }
+  ]
+}

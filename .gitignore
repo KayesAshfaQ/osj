@@ -1,0 +1,48 @@
+node_modules/
+dist/
+build/
+.env
+.DS_Store
+*.log
+coverage/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.firebase/
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python caches and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+backend/qdrant_db_candidate/
+backend/.fastembed_cache/
+
+# OS
+Thumbs.db
+
+# OpenCode transient files
+.opencode/node_modules/
+.opencode/package-lock.json
+.opencode/bun.lock*
+
+# Local corpora, generated evaluations and credentials
+.env.*
+!.env.example
+qdrant_db*/
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "docs/changes/README.md"
+  ],
+  "plugins": [
+    "./.opencode/plugins/justify-workflow"
+  ]
+}

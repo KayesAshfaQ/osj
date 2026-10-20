@@ -1,0 +1,64 @@
+name: Web checks
+on:
+  push:
+    branches: [osj]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      JUSTIFY_API_ORIGIN: https://api.example.com
+      JUSTIFY_APP_ORIGIN: https://app.example.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: stable
+          cache: true
+      - name: Build Flutter web
+        working-directory: frontend
+        run: |
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          dart run build_runner build
+          flutter analyze
+          flutter test
+          flutter build web --release --dart-define="JUSTIFY_API_ORIGIN=$JUSTIFY_API_ORIGIN"
+      - name: Browser HTTP fixtures
+        run: |
+          python3 scripts/web_chat_fixture.py &
+          FIXTURE_PID=$!
+          trap 'kill "$FIXTURE_PID"' EXIT
+          python3 - <<'PYWAIT'
+          import time, urllib.request
+          for attempt in range(30):
+              try:
+                  urllib.request.urlopen('http://127.0.0.1:8765/health', timeout=1).close()
+                  break
+              except OSError:
+                  time.sleep(0.2)
+          else:
+              raise SystemExit('Fixture failed to start')
+          PYWAIT
+          cd frontend
+          flutter test --platform chrome test/browser/chat_http_test.dart test/chat_page_test.dart test/widgets/source_card_test.dart
+      - name: Build landing demo
+        working-directory: juries
+        run: |
+          npm ci
+          dart pub get --enforce-lockfile
+          dart analyze
+          dart test
+          npm run build:css -- --minify
+          dart pub global activate jaspr_cli 0.23.4
+          "$HOME/.pub-cache/bin/jaspr" build --dart-define="JUSTIFY_APP_ORIGIN=$JUSTIFY_APP_ORIGIN" --dart-define="JUSTIFY_API_ORIGIN=$JUSTIFY_API_ORIGIN"
